@@ -33,3 +33,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Environment files with secrets
+.env
+.env.save
+.env.local
+.env.*.local
+backend/.env
+backend/.env.save
+backend/.env.local
+*.env.backup

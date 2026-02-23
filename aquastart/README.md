@@ -1,3 +1,4 @@
+
 # AquaStart Web App
 
 This is a Next.js 14 web application configured with TypeScript, Tailwind CSS, and ESLint.

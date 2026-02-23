@@ -1,0 +1,32 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Get release notes
+        id: notes
+        run: |
+          if [ -f RELEASE_NOTES_v${GITHUB_REF#refs/tags/v}.md ]; then
+            cat RELEASE_NOTES_v${GITHUB_REF#refs/tags/v}.md > release_notes.txt
+          else
+            echo "Release ${{ github.ref }}" > release_notes.txt
+          fi
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.txt
+          draft: false
+          prerelease: false
