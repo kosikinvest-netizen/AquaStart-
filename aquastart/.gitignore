@@ -70,3 +70,14 @@ backend/.env.*
 **/.env.*
 *.env.save
 *.env.backup
+
+# Environment variables - NEVER commit!
+.env
+.env.*
+*.env
+backend/.env
+backend/.env.*
+**/.env
+**/.env.*
+*.env.save
+*.env.backup
