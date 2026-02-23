@@ -9,8 +9,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import HexColor
 
-SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "TWÓJ_URL")
-SUPABASE_KEY = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "TWÓJ_KLUCZ")
+SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "https://qbdpzsvqzcjwgpaygpmy.supabase.co")
+SUPABASE_KEY = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def download_fonts():
