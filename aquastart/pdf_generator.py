@@ -14,6 +14,7 @@ SUPABASE_KEY = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "TWÓJ_KLUCZ")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def download_fonts():
+    """Pobierz fonty DejaVu jeśli nie istnieją"""
     fonts = {
         'DejaVuSans.ttf': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans.ttf',
         'DejaVuSans-Bold.ttf': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans-Bold.ttf'
@@ -24,18 +25,22 @@ def download_fonts():
             urllib.request.urlretrieve(dl_url, filename)
 
 def draw_header_footer(c, width, height, page_num):
+    """Rysuj nagłówek i stopkę na każdej stronie"""
     c.setFont('DejaVuSans', 9)
     c.setFillColor(HexColor("#64748b"))
-    c.drawString(50, 30, f"AquaStart – Seria Premium | Strona {page_num}")
+    c.drawString(50, 30, f"AquaStart – Premium | Strona {page_num}")
 
 def generate_aquastart_premium():
+    """Główna funkcja - generowanie PDF z uploadem do Supabase"""
     download_fonts()
     pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
     pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'DejaVuSans-Bold.ttf'))
     
-    # Unikalna nazwa pliku z timestampem, żeby uniknąć nadpisywania w chmurze
+    # Unikalna nazwa pliku z timestampem
     timestamp = int(time.time())
     filename = f"AquaStart_Przewodnik_Premium_{timestamp}.pdf"
+    
+    print(f"📋 Generating PDF: {filename}")
     
     c = canvas.Canvas(filename, pagesize=A4)
     width, height = A4
@@ -85,28 +90,42 @@ def generate_aquastart_premium():
         
     draw_header_footer(c, width, height, 2)
     c.save()
-    print(f"Wygenerowano fizyczny plik: {filename}")
+    print(f"✅ Lokalny plik wygenerowany: {filename}")
     
     # --- UPLOAD DO SUPABASE STORAGE ---
-    print("Wysyłanie do Supabase Storage...")
-    with open(filename, 'rb') as f:
-        supabase.storage.from_("publications").upload(
-            file=f,
-            path=filename,
-            file_options={"content-type": "application/pdf"}
-        )
+    print("📤 Wysyłanie do Supabase Storage...")
+    try:
+        with open(filename, 'rb') as f:
+            supabase.storage.from_("publications").upload(
+                file=f,
+                path=filename,
+                file_options={"content-type": "application/pdf"}
+            )
+        print("✅ Plik zauploadowany do Storage")
+    except Exception as e:
+        print(f"❌ Błąd uploadu: {e}")
+        return
     
     # Pobranie publicznego linku
-    public_url = supabase.storage.from_("publications").get_public_url(filename)
+    try:
+        public_url = supabase.storage.from_("publications").get_public_url(filename)
+        print(f"✅ Public URL: {public_url}")
+    except Exception as e:
+        print(f"❌ Błąd pobierania URL: {e}")
+        return
     
-    # Zapis do tabeli z podpiętym linkiem URL do chmury
-    supabase.table('pdf_publications').insert({
-        "title": "AquaStart Przewodnik Premium",
-        "type": "Przewodnik",
-        "file_url": public_url
-    }).execute()
-    
-    print(f"Gotowe! Plik dostępny pod adresem: {public_url}")
+    # Zapis do tabeli pdf_publications
+    try:
+        supabase.table('pdf_publications').insert({
+            "title": "AquaStart Przewodnik Premium",
+            "type": "Przewodnik",
+            "file_url": public_url
+        }).execute()
+        print(f"✅ Wpis dodany do tabeli 'pdf_publications'")
+        print(f"🎊 Gotowe! Link do pobrania: {public_url}")
+    except Exception as e:
+        print(f"❌ Błąd zapisu do bazy: {e}")
+        return
 
 if __name__ == "__main__":
     generate_aquastart_premium()
