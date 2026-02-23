@@ -43,3 +43,19 @@ backend/.env
 backend/.env.save
 backend/.env.local
 *.env.backup
+
+# Environment files - NEVER commit these!
+.env
+.env.*
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+backend/.env.*
+backend/*.env
+**/.env
+**/.env.*
+*.env.save
+*.env.backup
