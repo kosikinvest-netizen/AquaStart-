@@ -180,7 +180,7 @@ CREATE POLICY IF NOT EXISTS "Pozwól na wgrywanie"
 ON storage.objects FOR INSERT 
 WITH CHECK (bucket_id = 'publications');
 
--- Pozwala na usuwanie własnych plików
+-- Pozwala na usuwanie własnych plików1
 CREATE POLICY IF NOT EXISTS "Pozwól na usuwanie" 
 ON storage.objects FOR DELETE 
 USING (bucket_id = 'publications');
