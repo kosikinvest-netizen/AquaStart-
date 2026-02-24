@@ -1,0 +1,34 @@
+name: Backend Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-test.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+      
+      - name: Test configuration
+        run: |
+          cd backend
+          python3 test_setup.py
+      
+      - name: Verify PDF generator syntax
+        run: |
+          cd backend
+          python3 -m py_compile pdf_generator.py

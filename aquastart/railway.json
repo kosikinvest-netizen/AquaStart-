@@ -1,0 +1,8 @@
+{
+  "build": {
+    "builder": "dockerfile"
+  },
+  "deploy": {
+    "startCommand": "cd backend && python3 pdf_generator.py"
+  }
+}
