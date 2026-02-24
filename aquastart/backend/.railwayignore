@@ -1,0 +1,19 @@
+# Railway ignore file
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.log
+venv/
+.venv/
+env/
+.env
+.env.save
+*.backup
+output/
+fonts/
+.git/
+.gitignore
+README.md
+*.md
