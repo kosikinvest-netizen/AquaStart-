@@ -13,20 +13,20 @@ CREATE TABLE IF NOT EXISTS public.pdf_publications (
 -- Enable RLS
 ALTER TABLE public.pdf_publications ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
-CREATE POLICY "Users can read own PDFs"
+-- RLS Policies - using IF NOT EXISTS to avoid conflicts
+CREATE POLICY IF NOT EXISTS "Users can read own PDFs"
   ON public.pdf_publications FOR SELECT
   USING (auth.uid() = user_id OR user_id IS NULL);
 
-CREATE POLICY "Users can insert own PDFs"
+CREATE POLICY IF NOT EXISTS "Users can insert own PDFs"
   ON public.pdf_publications FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own PDFs"
+CREATE POLICY IF NOT EXISTS "Users can update own PDFs"
   ON public.pdf_publications FOR UPDATE
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own PDFs"
+CREATE POLICY IF NOT EXISTS "Users can delete own PDFs"
   ON public.pdf_publications FOR DELETE
   USING (auth.uid() = user_id);
 
@@ -34,8 +34,16 @@ CREATE POLICY "Users can delete own PDFs"
 CREATE INDEX IF NOT EXISTS idx_pdf_publications_user_id ON public.pdf_publications(user_id);
 CREATE INDEX IF NOT EXISTS idx_pdf_publications_created_at ON public.pdf_publications(created_at DESC);
 
--- Create trigger
-CREATE TRIGGER update_pdf_publications_updated_at
+-- Create trigger for auto-update timestamps
+CREATE OR REPLACE FUNCTION update_pdf_publications_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER IF NOT EXISTS update_pdf_publications_updated_at
   BEFORE UPDATE ON public.pdf_publications
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION update_pdf_publications_updated_at();
