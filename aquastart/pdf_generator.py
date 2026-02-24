@@ -9,12 +9,16 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import HexColor
 
-SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "https://qbdpzsvqzcjwgpaygpmy.supabase.co")
-SUPABASE_KEY = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+# Load from environment variables
+SUPABASE_URL = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing environment variables! Create .env.local")
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def download_fonts():
-    """Pobierz fonty DejaVu jeśli nie istnieją"""
     fonts = {
         'DejaVuSans.ttf': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans.ttf',
         'DejaVuSans-Bold.ttf': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans-Bold.ttf'
@@ -25,18 +29,15 @@ def download_fonts():
             urllib.request.urlretrieve(dl_url, filename)
 
 def draw_header_footer(c, width, height, page_num):
-    """Rysuj nagłówek i stopkę na każdej stronie"""
     c.setFont('DejaVuSans', 9)
     c.setFillColor(HexColor("#64748b"))
     c.drawString(50, 30, f"AquaStart – Premium | Strona {page_num}")
 
 def generate_aquastart_premium():
-    """Główna funkcja - generowanie PDF z uploadem do Supabase"""
     download_fonts()
     pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
     pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'DejaVuSans-Bold.ttf'))
     
-    # Unikalna nazwa pliku z timestampem
     timestamp = int(time.time())
     filename = f"AquaStart_Przewodnik_Premium_{timestamp}.pdf"
     
@@ -45,7 +46,7 @@ def generate_aquastart_premium():
     c = canvas.Canvas(filename, pagesize=A4)
     width, height = A4
     
-    # --- STRONA 1: OKŁADKA ---
+    # PAGE 1: COVER
     c.setFillColor(HexColor("#0284c7"))
     c.rect(0, height - 120, width, 120, fill=1, stroke=0)
     c.setFillColor(HexColor("#ffffff"))
@@ -60,7 +61,7 @@ def generate_aquastart_premium():
     draw_header_footer(c, width, height, 1)
     c.showPage()
     
-    # --- STRONA 2: TREŚĆ WŁAŚCIWA ---
+    # PAGE 2: CONTENT
     c.setFillColor(HexColor("#0f172a"))
     c.setFont('DejaVuSans-Bold', 18)
     c.drawString(50, height - 80, "1. Kluczowe parametry i związki chemiczne")
@@ -90,10 +91,10 @@ def generate_aquastart_premium():
         
     draw_header_footer(c, width, height, 2)
     c.save()
-    print(f"✅ Lokalny plik wygenerowany: {filename}")
+    print(f"✅ PDF generated: {filename}")
     
-    # --- UPLOAD DO SUPABASE STORAGE ---
-    print("📤 Wysyłanie do Supabase Storage...")
+    # Upload to Supabase Storage
+    print("📤 Uploading to Supabase Storage...")
     try:
         with open(filename, 'rb') as f:
             supabase.storage.from_("publications").upload(
@@ -101,30 +102,30 @@ def generate_aquastart_premium():
                 path=filename,
                 file_options={"content-type": "application/pdf"}
             )
-        print("✅ Plik zauploadowany do Storage")
+        print("✅ Uploaded to Storage")
     except Exception as e:
-        print(f"❌ Błąd uploadu: {e}")
+        print(f"❌ Upload error: {e}")
         return
     
-    # Pobranie publicznego linku
+    # Get public URL
     try:
         public_url = supabase.storage.from_("publications").get_public_url(filename)
         print(f"✅ Public URL: {public_url}")
     except Exception as e:
-        print(f"❌ Błąd pobierania URL: {e}")
+        print(f"❌ URL error: {e}")
         return
     
-    # Zapis do tabeli pdf_publications
+    # Insert into database
     try:
         supabase.table('pdf_publications').insert({
             "title": "AquaStart Przewodnik Premium",
             "type": "Przewodnik",
             "file_url": public_url
         }).execute()
-        print(f"✅ Wpis dodany do tabeli 'pdf_publications'")
-        print(f"🎊 Gotowe! Link do pobrania: {public_url}")
+        print(f"✅ Entry added to pdf_publications")
+        print(f"🎊 Done! URL: {public_url}")
     except Exception as e:
-        print(f"❌ Błąd zapisu do bazy: {e}")
+        print(f"❌ Database error: {e}")
         return
 
 if __name__ == "__main__":

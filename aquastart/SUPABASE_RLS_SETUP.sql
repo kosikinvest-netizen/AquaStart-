@@ -157,17 +157,4 @@ CREATE TRIGGER update_aquariums_updated_at
 -- 6. GRANT PERMISSIONS
 -- ============================================================================
 
--- Allow anon (public/client) access with RLS
--- GRANT USAGE ON SCHEMA public TO anon, authenticated;
--- GRANT SELECT, INSERT, UPDATE, DELETE ON public.users TO authenticated;
--- GRANT SELECT, INSERT, UPDATE, DELETE ON public.aquariums TO authenticated;
--- GRANT SELECT, INSERT, UPDATE ON public.water_parameters TO authenticated;
--- GRANT SELECT, INSERT, DELETE ON public.reports TO authenticated;
-
--- GRANT USAGE ON SEQUENCE aquariums_id_seq TO authenticated;
--- GRANT USAGE ON SEQUENCE water_parameters_id_seq TO authenticated;
--- GRANT USAGE ON SEQUENCE reports_id_seq TO authenticated;
-
--- Allow trigger functions functions
--- GRANT EXECUTE ON FUNCTION update_updated_at_column TO authenticated;
-
+-- 3
