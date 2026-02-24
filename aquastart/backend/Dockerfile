@@ -1,20 +1,24 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-WORKDIR /app/backend
+WORKDIR /app
 
-# Zainstaluj zależności systemowe
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    fonts-dejavu \
+    wkhtmltopdf \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
-# Skopiuj requirements
+# Copy requirements
 COPY requirements.txt .
 
-# Zainstaluj Python zależności
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Skopiuj kod
+# Copy application
 COPY . .
 
-# Uruchom generator
+# Expose port
+EXPOSE 8080
+
+# Start command
 CMD ["python3", "pdf_generator.py"]
