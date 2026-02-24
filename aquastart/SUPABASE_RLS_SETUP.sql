@@ -157,4 +157,4 @@ CREATE TRIGGER update_aquariums_updated_at
 -- 6. GRANT PERMISSIONS
 -- ============================================================================
 
--- 3
+-- 
