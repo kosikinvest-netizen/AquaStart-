@@ -157,4 +157,32 @@ CREATE TRIGGER update_aquariums_updated_at
 -- 6. GRANT PERMISSIONS
 -- ============================================================================
 
--- 
+-- ============================================================================
+-- SUPABASE STORAGE CONFIGURATION - SAFE VERSION
+-- ============================================================================
+
+-- Tworzy publiczny bucket o nazwie 'publications'
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('publications', 'publications', true) 
+ON CONFLICT (id) DO NOTHING;
+
+-- Usuń stare polityki jeśli istnieją (opcjonalnie)
+DROP POLICY IF EXISTS "Publiczna opcja pobierania" ON storage.objects;
+DROP POLICY IF EXISTS "Pozwól na wgrywanie" ON storage.objects;
+
+-- Pozwala każdemu na pobieranie plików (z IF NOT EXISTS)
+CREATE POLICY IF NOT EXISTS "Publiczna opcja pobierania" 
+ON storage.objects FOR SELECT 
+USING (bucket_id = 'publications');
+
+-- Pozwala skryptowi na wgrywanie plików (z IF NOT EXISTS)
+CREATE POLICY IF NOT EXISTS "Pozwól na wgrywanie" 
+ON storage.objects FOR INSERT 
+WITH CHECK (bucket_id = 'publications');
+
+-- Pozwala na usuwanie własnych plików
+CREATE POLICY IF NOT EXISTS "Pozwól na usuwanie" 
+ON storage.objects FOR DELETE 
+USING (bucket_id = 'publications');
+
+SELECT 'Storage configuration complete!' as status;
