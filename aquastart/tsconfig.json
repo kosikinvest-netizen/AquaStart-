@@ -1,26 +1,26 @@
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        aqua: {
-          50: '#f0f9ff',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1'
-        }
-      },
-      fontFamily: {
-        sans: ['system-ui', 'sans-serif'],
-        mono: ['Menlo', 'Monaco', 'monospace']
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
       }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
     }
   },
-  plugins: [],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
-export default config
-
