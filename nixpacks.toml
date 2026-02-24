@@ -1,0 +1,15 @@
+# Nixpacks configuration for AquaStart Backend
+# Root-level config with backend subdirectory
+
+[phases.setup]
+nixPkgs = ["python311", "wkhtmltopdf", "xvfb"]
+
+[phases.install]
+cmds = [
+    "cd aquastart/backend",
+    "pip install --upgrade pip",
+    "pip install -r requirements.txt"
+]
+
+[start]
+cmd = "cd aquastart/backend && python3 pdf_generator.py"

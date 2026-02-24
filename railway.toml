@@ -1,0 +1,12 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd aquastart/backend && pip install -r requirements.txt"
+
+[deploy]
+startCommand = "cd aquastart/backend && python3 pdf_generator.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[env]
+PORT = "8080"
+PYTHONUNBUFFERED = "1"
